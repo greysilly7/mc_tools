@@ -1,0 +1,3 @@
+/home/greysilly7/git/mc_tools/devenv.lock
+/home/greysilly7/git/mc_tools/devenv.nix
+/home/greysilly7/git/mc_tools/devenv.yaml

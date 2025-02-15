@@ -1,0 +1,10 @@
+[package]
+name = "mc_tools"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+flate2 = { version = "1.0.35", features = [
+  "zlib-ng",
+], default-features = false }
+tar = "0.4.43"
