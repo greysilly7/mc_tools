@@ -28,7 +28,7 @@ pub fn usage(program_name: &str) {
     eprintln!("Usage:");
     eprintln!("  Backup:");
     eprintln!(
-        "    {} backup --world-dir /path/to/world --backup-dir /path/to/backups [--server-session tmux_session]",
+        "    {} backup --server-dir /path/to/world --backup-dir /path/to/backups [--server-session tmux_session]",
         program_name
     );
     eprintln!("  Restore:");

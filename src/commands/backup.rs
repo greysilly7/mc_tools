@@ -1,21 +1,28 @@
-use std::{fs, path::Path, process::{self, Command}};
+use std::{
+    fs,
+    path::Path,
+    process::{self, Command},
+};
 
-use crate::{usage, utils::{current_time, log_error, log_info}};
+use crate::{
+    usage,
+    utils::{current_time, log_error, log_info},
+};
 
 pub fn backup(args: &[String]) {
-    let mut world_dir = String::new();
+    let mut server_dir = String::new();
     let mut backup_dir = String::new();
     let mut server_session = String::new();
 
     let mut i: usize = 0;
     while i < args.len() {
         match args[i].as_str() {
-            "--world-dir" => {
+            "--server-dir" => {
                 if i + 1 < args.len() {
-                    world_dir = args[i + 1].clone();
+                    server_dir = args[i + 1].clone();
                     i += 2;
                 } else {
-                    log_error("Missing value for --world-dir");
+                    log_error("Missing value for --server-dir");
                     usage(&args[0]);
                 }
             }
@@ -44,20 +51,23 @@ pub fn backup(args: &[String]) {
         }
     }
 
-    Command::new("tmux")
-        .args(["send-keys", "-t", &server_session, "save-all", "Enter"])
-        .output()
-        .expect("Failed to execute tmux command");
-    Command::new("tmux")
-        .args(["send-keys", "-t", &server_session, "save-all", "Enter"])
-        .output()
-        .expect("Failed to execute tmux command");
+    // Check if the server session is provided
+    if !server_session.is_empty() {
+        Command::new("tmux")
+            .args(["send-keys", "-t", &server_session, "save-all", "Enter"])
+            .output()
+            .expect("Failed to execute tmux command");
+        Command::new("tmux")
+            .args(["send-keys", "-t", &server_session, "save-all", "Enter"])
+            .output()
+            .expect("Failed to execute tmux command");
+    }
 
     // Pause for 10 seconds to allow the server to save
     std::thread::sleep(std::time::Duration::from_secs(10));
 
-    if world_dir.is_empty() || backup_dir.is_empty() {
-        log_error("Missing required options for backup (--world-dir and --backup-dir).");
+    if server_dir.is_empty() || backup_dir.is_empty() {
+        log_error("Missing required options for backup (--server-dir and --backup-dir).");
         usage(&args[0]);
     }
 
@@ -98,19 +108,19 @@ pub fn backup(args: &[String]) {
             latest
         ));
         // Use hard links for unchanged files
-        hardlink_incremental_backup(&latest, &world_dir, &new_backup);
+        hardlink_incremental_backup(&latest, &server_dir, &new_backup);
     } else {
         log_info("No previous backup found. Creating a full backup.");
         // Copy files for the first backup
-        copy_files(&world_dir, &new_backup);
+        copy_files(&server_dir, &new_backup);
     }
 
     log_info("Backup completed successfully.");
 }
 
-fn hardlink_incremental_backup(latest: &Path, world_dir: &str, new_backup: &str) {
+fn hardlink_incremental_backup(latest: &Path, server_dir: &str, new_backup: &str) {
     // Iterate over the world directory and create hard links
-    for entry in fs::read_dir(world_dir).unwrap() {
+    for entry in fs::read_dir(server_dir).unwrap() {
         let entry = entry.unwrap();
         let file_name = entry.file_name();
         let source_path = entry.path();
