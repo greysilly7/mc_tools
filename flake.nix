@@ -22,7 +22,7 @@
           packages = {
             # replace hello-world with your package name
             mc_tools = rustPkgs.workspace.mc_tools {};
-            default = packages.hello-world;
+            default = packages.mc_tools;
           };
         }
       );
